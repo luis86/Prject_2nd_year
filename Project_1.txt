@@ -1,0 +1,633 @@
+import java.sql.*;
+import javax.swing.*;
+import java.awt.event.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
+import java.io.*;
+
+public class ProjectPDS extends OpenFile implements ActionListener{
+    static Connection conn = null;
+    static String url = "jdbc:mysql://localhost:3306/";
+    static String dbName = "city_college1";
+    static String driver = "com.mysql.jdbc.Driver";  // statements needed to connect to database
+    static String userName = "root";
+    static String password = "cnwl";
+    static Statement st;
+    static String query;
+
+    JComboBox cb1, cb2, cb3, cb4;
+    JPanel panel, cardPanel1, cardPanel2, cardPanel3, cardPanel4;
+    JButton b2, b1, b3, b4, b5, display1, display2, display3, check, insertStudent,insertLecture, clear;
+    CardLayout cl;
+    JTextField tx1, tx2, tx3;
+    static JTextArea textArea, textArea1;
+    //static DefaultListModel listModel;
+    JLabel title, studentId, studentName,studentSurname, studentDob,studentNumber,studentEmail,studentAttendance,tutorId, courseId,courseName, insertStudentLabel, showDataLabel, logo1,logo2,logo3,logo4;
+    JTextField usernameTxt, addStudent1,addStudent2,addStudent3,addStudent4,addStudent5,addStudent6,addStudent7,addStudent8, addLecture, addCourseId,addCourseName;  
+    JPasswordField passwordTxt;  
+    JInternalFrame loginFrame; 
+    JButton loginButton;
+    int page = 1;
+
+    @SuppressWarnings("unchecked")
+    public static void main(String [] args){
+        new ProjectPDS();
+
+        try{
+            Class.forName(driver).newInstance();
+            conn = DriverManager.getConnection(url+dbName,userName,password);
+            st = conn.createStatement();
+
+        }catch(Exception e){
+            // e.printStackTrace();
+        }
+    }
+
+    public ProjectPDS(){
+        JFrame frame = new JFrame("Luigi's frame");
+        setBounds(100,100,800,600);
+        setLayout(new BorderLayout());
+        setVisible(true);
+
+        JPanel loginPanel = new JPanel();
+        loginPanel.setLayout(new BorderLayout());
+        Dimension loginPane = new Dimension(200,250);
+        loginPanel.setBackground(Color.RED);
+
+        addStudent1 = new JTextField(8);
+        addStudent2 = new JTextField(8);
+        addStudent3 = new JTextField(8);
+        addStudent4 = new JTextField(8);
+        addStudent5 = new JTextField(8);
+        addStudent6 = new JTextField(8);
+        addStudent7 = new JTextField(8);
+        addStudent8 = new JTextField(8);
+        addLecture = new JTextField(8);
+        addCourseId = new JTextField(8);
+        addCourseName = new JTextField(8);
+
+        studentId = new JLabel("Student_ID");
+        studentName = new JLabel("Student_Name");
+        studentSurname = new JLabel("Student_Surname");
+        studentDob = new JLabel("Student_DOB");
+        studentNumber = new JLabel("Student_Numb");
+        studentEmail = new JLabel("Student_Email");
+        studentAttendance = new JLabel("Student_Att");
+        tutorId = new JLabel("Tutor_ID");
+        courseId = new JLabel("Course_ID");
+        courseName = new JLabel("Course_Name");
+
+        insertStudentLabel = new JLabel("INSERT STUDENT");
+        insertStudentLabel.setForeground(Color.red);
+        insertStudentLabel.setFont(new Font("arial", Font.BOLD, 30));
+
+        showDataLabel = new JLabel("DISPLAY STUDENTS/ASSIGNMENT/TUTORS FROM DATABASE");
+        showDataLabel.setForeground(Color.red);
+        showDataLabel.setFont(new Font("arial", Font.BOLD, 20));
+
+        usernameTxt = new JTextField(10); 
+        usernameTxt.setForeground(Color.red);
+        passwordTxt = new JPasswordField(10); 
+        passwordTxt.setForeground(Color.red);
+        JLabel reportLabel = new JLabel("PDS REPORT");
+        reportLabel.setFont(new Font("arial", Font.BOLD, 30));
+        reportLabel.setForeground(Color.black);
+        JLabel title1 = new JLabel("PDS SOFTWARE");
+        title1.setForeground(Color.red);
+        title1.setFont(new Font("arial", Font.BOLD, 30));
+        JLabel usernameLbl = new JLabel("USERNAME: ");  
+        JLabel passwordLbl = new JLabel("PASSWORD: ");  
+        loginButton = new JButton("Login");
+        loginButton.addActionListener(this);  
+        passwordTxt.addActionListener(this); 
+        usernameTxt.addActionListener(this); 
+
+        panel = new JPanel();
+        panel.setBackground(Color.RED);
+        panel.setPreferredSize(new Dimension(500, 500));
+
+        cardPanel1 = new JPanel();
+        cardPanel1.setBackground(Color.DARK_GRAY);
+        cardPanel2 = new JPanel();
+        cardPanel2.setBackground(Color.LIGHT_GRAY);
+        cardPanel3 = new JPanel();
+        cardPanel3.setBackground(Color.LIGHT_GRAY);
+        cardPanel4 = new JPanel();
+        cardPanel4.setBackground(Color.LIGHT_GRAY);
+        //cardPanel4.setLayout(new BorderLayout());
+
+        cl = new CardLayout();
+        panel.setLayout(cl);
+        add(panel);
+
+        cb1 = new JComboBox();
+        cb1.addItem("11");
+        cb1.addItem("12");
+        cb1.addItem("21");
+        cb1.addItem("22");
+        cb1.addItem("26");
+        cb1.addItem("44");
+        cb1.addItem("50");
+        cb1.addItem("99");
+        cb1.addItem("100");
+        cb1.addItem("200");
+        cb3 = new JComboBox();
+        cb3.addItem("Management");
+        cb3.addItem("Matematics");
+        cb3.addItem("Art");
+        cb3.addItem("History");
+        cb3.addItem("Computing");
+        cb3.addItem("Accountancy");
+        cb3.addItem("Science");
+        cb3.addItem("Biology");
+        cb3.addItem("Geography");
+        cb3.addItem("English");
+        clear = new JButton("CLEAR");
+        clear.setBackground(Color.RED);
+        clear.addActionListener(this);
+        b1 = new JButton("Previous");
+        b1.setPreferredSize(new Dimension(0, 0));
+        b1.setBackground(Color.DARK_GRAY);
+        b1.setForeground(Color.RED);
+        b1.addActionListener(this);
+        b2 = new JButton("Next");
+        b2.setPreferredSize(new Dimension(0, 0));
+        b2.setBackground(Color.DARK_GRAY);
+        b2.setForeground(Color.RED);
+        b2.addActionListener(this);
+        b3= new JButton("c1");
+        b4 = new JButton("c2");
+        b5 = new JButton("c3");
+        display1 = new JButton("SHOW STUDENTS");
+        display1.addActionListener(this);
+        display1.setBackground(Color.green);
+        display2 = new JButton("SHOW LECTURERS");
+        display2.addActionListener(this);
+        display2.setBackground(Color.green);
+        display3 = new JButton("STUDENT ASSIGNMENT");
+        display3.addActionListener(this);
+        display3.setBackground(Color.green);
+        check = new JButton("CHECK NOW");
+        check.setBackground(Color.green);
+        check.addActionListener(this);
+        insertStudent = new JButton("Add a Student");
+        insertStudent.setBackground(Color.green);
+        insertLecture = new JButton("Add a Lecture");
+        insertStudent.addActionListener(this);
+        insertLecture.addActionListener(this);
+
+        //listModel = new DefaultListModel();
+
+        textArea = new JTextArea(); 
+        textArea.setPreferredSize(new Dimension(400,350));
+
+        textArea1 = new JTextArea(); 
+        textArea1.setPreferredSize(new Dimension(750,350));
+
+        tx1 = new JTextField();
+        tx1.setPreferredSize(new Dimension (200,20));
+        tx2 = new JTextField();
+        tx2.setPreferredSize(new Dimension (200,20));
+        tx3 = new JTextField();
+        tx3.setPreferredSize(new Dimension (200,20));
+
+        add(b1,BorderLayout.PAGE_START);
+        add(b2,BorderLayout.PAGE_END);
+
+        cardPanel1.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        c.gridx = 0;
+        c.gridy = 0;
+        c.insets = new Insets(0,0,0,0);
+        cardPanel1.add(loginPanel,c);
+
+        c.gridx = 19;
+        c.gridy = 0;
+        c.insets = new Insets(-300,-320,100,0);
+        cardPanel1.add(title1,c);
+
+        c.gridx = 0;
+        c.gridy = 0;
+        c.insets = new Insets(350,100,50,-300);
+        cardPanel1.add(loginButton,c);
+        logo1 = new JLabel("pawered by JAVA");   //JLabel
+        logo1.setForeground(Color.red);
+        c.gridx = 10;
+        c.gridy = 0;
+        c.insets = new Insets(500,150,0,-300);
+        cardPanel1.add(logo1,c);
+
+        JPanel panel1 = new JPanel();
+        panel1.setLayout(new GridBagLayout());
+        GridBagConstraints d = new GridBagConstraints();
+        d.fill = GridBagConstraints.HORIZONTAL;
+        panel1.setPreferredSize(new Dimension(400,200));
+        panel1.setBackground(Color.LIGHT_GRAY);
+        cardPanel1.add(panel1);
+        panel1.add(usernameLbl);
+        panel1.add(usernameTxt);
+        panel1.add(passwordLbl);
+        panel1.add(passwordTxt);
+
+        cardPanel4.setLayout(new GridBagLayout());
+        GridBagConstraints j = new GridBagConstraints();
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(-150,-420,40,0);
+        cardPanel4.add(addStudent1,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(-150,-200,40,0);
+        cardPanel4.add(addStudent2,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(-150,20,40,0);
+        cardPanel4.add(addStudent3,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(-150,240,40,0);
+        cardPanel4.add(addStudent4,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(50,-420,40,0);
+        cardPanel4.add(addStudent5,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(50,-200,40,0);
+        cardPanel4.add(addStudent6,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(50,20,40,0);
+        cardPanel4.add(addStudent7,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(50,240,40,0);
+        cardPanel4.add(cb1,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(250,-410,40,0);
+        cardPanel4.add(cb3,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(300,220,40,0);
+        cardPanel4.add(insertStudent,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(-200,-420,40,0);
+        cardPanel4.add(studentId,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(-200,-200,40,0);
+        cardPanel4.add(studentName,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(-200,20,40,0);
+        cardPanel4.add(studentSurname,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(-200,240,40,0);
+        cardPanel4.add(studentDob,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(0,-420,40,0);
+        cardPanel4.add(studentNumber,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(0,-200,40,0);
+        cardPanel4.add(studentEmail,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(0,20,40,0);
+        cardPanel4.add(studentAttendance,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(0,240,40,0);
+        cardPanel4.add(tutorId,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(200,-420,40,0);
+        cardPanel4.add(courseName,j);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(-320,-220,40,0);
+        cardPanel4.add(insertStudentLabel,j);
+        logo2 = new JLabel("pawered by JAVA");
+        logo2.setForeground(Color.red);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(500,0,0,0);
+        cardPanel4.add(logo2,j);
+
+        JLabel title2 = new JLabel("PDS SOFTWARE");
+        title2.setForeground(Color.red);
+        title2.setFont(new Font("arial", Font.BOLD, 30));
+        cardPanel2.setLayout(new GridBagLayout());
+        GridBagConstraints b = new GridBagConstraints();
+        JPanel panel2 = new JPanel();
+        panel2.setLayout(new GridBagLayout());
+        GridBagConstraints f = new GridBagConstraints();
+        f.fill = GridBagConstraints.HORIZONTAL;
+        panel2.setPreferredSize(new Dimension(700,50));
+        panel2.setBackground(Color.DARK_GRAY);
+        cardPanel2.add(panel2);
+        panel2.add(filename);
+        panel2.add(dir);
+        panel2.add(open);
+        JLabel labelTitle1 = new JLabel("FILE NAME");
+        labelTitle1.setForeground(Color.red);
+        JLabel labelTitle2 = new JLabel("FILE ROOT");
+        labelTitle2.setForeground(Color.red);
+        f.gridx = 0;
+        f.gridy = 0;
+        f.insets = new Insets(-40,70,40,50);
+        cardPanel2.add(labelTitle1,f);
+        f.gridx = 0;
+        f.gridy = 0;
+        f.insets = new Insets(-40,270,40,50);
+        cardPanel2.add(labelTitle2,f);
+        f.gridx = 0;
+        f.gridy = 0;
+        f.insets = new Insets(-340,220,40,50);
+        cardPanel2.add(title2,f);
+        logo3 = new JLabel("pawered by JAVA");
+        logo3.setForeground(Color.red);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(500,0,0,0);
+        cardPanel2.add(logo3,j);
+
+        dir.setPreferredSize(new Dimension(300, 20));
+        filename.setPreferredSize(new Dimension(200, 20));
+
+        b.gridx = 0;
+        b.gridy = 0;
+        b.insets = new Insets(250,20,80,-300);
+        cardPanel2.add(check,b);
+        cardPanel3.setLayout(new GridBagLayout());
+        GridBagConstraints k = new GridBagConstraints();
+        k.gridx = 0;
+        k.gridy = 0;
+        k.insets = new Insets(-300,-500,40,0);
+        cardPanel3.add(display2,k);
+        k.gridx = 0;
+        k.gridy = 0;
+        k.insets = new Insets(-300,550,40,0);
+        cardPanel3.add(clear,k);
+        k.gridx = 0;
+        k.gridy = 0;
+        k.insets = new Insets(-300,280,40,0);
+        cardPanel3.add(display1,k);
+        k.gridx = 0;
+        k.gridy = 0;
+        k.insets = new Insets(-300,-110,40,0);
+        cardPanel3.add(display3,k);
+        k.gridx = 0;
+        k.gridy = 0;
+        k.insets = new Insets(120,0,40,0);
+        cardPanel3.add(textArea1,k);
+        k.gridx = 0;
+        k.gridy = 0;
+        k.insets = new Insets(-410,-10,40,0);
+        cardPanel3.add(showDataLabel,k);
+        logo4 = new JLabel("pawered by JAVA");
+        logo4.setForeground(Color.red);
+        j.gridx = 0;
+        j.gridy = 0;
+        j.insets = new Insets(500,0,0,0);
+        cardPanel3.add(logo4,j);
+        panel.add(cardPanel1,"a");
+        panel.add(cardPanel2,"b");
+        panel.add(cardPanel3,"c");
+        panel.add(cardPanel4,"d");
+    }
+
+    /* public static BufferedImage resizeImage(final Image image, int width, int height) {
+    final BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    final Graphics2D graphics2D = bufferedImage.createGraphics();
+    graphics2D.setComposite(AlphaComposite.Src);
+    graphics2D.drawImage(image, 1000, 1000, width, height, null);
+    graphics2D.dispose();
+
+    return bufferedImage;
+    }*/
+    @SuppressWarnings("unchecked")
+    public void actionPerformed(ActionEvent e){
+        if(e.getSource() == clear){
+            try {
+
+                textArea1.setText(" ");
+            } catch (Exception t) {
+                t.printStackTrace();
+            }
+
+        }
+        if(e.getSource() == display1){
+            try {
+                Class.forName(driver).newInstance();
+                conn = DriverManager.getConnection(url+dbName,userName,password);
+                st = conn.createStatement();
+                query = "SELECT * FROM students";
+                ResultSet rs = st.executeQuery(query) ;
+
+                textArea1.setText("Student_ID"+"   "+"Student_Name"+"    "+"Student_Surname"+"    "+"Student_DOB"+"      "+"Student_Number"+"        "+"Student_Email"+"                      "+"Student_Att"+"\n");
+                while ( rs.next() ) {
+
+                    textArea1.setText(textArea1.getText()+"    "+rs.getString("Student_ID")+"                   "+rs.getString("Student_Name")+"                  "+rs.getString("Student_Surname")+"                       "+rs.getString("Student_DOB")+ "                "+rs.getString("Student_ContactNumber")+ "               "+rs.getString("Student_Email")+ "                      "+rs.getString("Student_Attendance")+"\n");
+
+                }
+            } catch (Exception t) {
+                t.printStackTrace();
+            }
+
+        }
+        if(e.getSource() == display2){
+            try {
+                Class.forName(driver).newInstance();
+                conn = DriverManager.getConnection(url+dbName,userName,password);
+                st = conn.createStatement();
+                query = "SELECT * FROM tutors";
+                ResultSet rs = st.executeQuery(query) ;
+
+                textArea1.setText("TUTOR_ID"+"         "+"TUTOR_NAME"+"         "+"TUTOR_SURNAME"+"         "+"SUBJECT_TAUGHT"+"\n");               // +"TUTOR_ID-TUTOR_NAME-SUBJECT_TAUGHT"+"\n"
+                while ( rs.next() ) {
+
+                    textArea1.setText(textArea1.getText()+"    "+rs.getString("Tutor_ID")+"                       "+rs.getString("Tutor_Name")+"                            "+rs.getString("Surname")+"                                "+rs.getString("Subject_taught")+"\n");
+
+                }
+            } catch (Exception t) {
+                t.printStackTrace();
+            }
+
+        }
+        if(e.getSource() == display3){
+            try {
+                Class.forName(driver).newInstance();
+                conn = DriverManager.getConnection(url+dbName,userName,password);
+                st = conn.createStatement();
+                query = "SELECT DISTINCT students.Student_ID, students.Student_Name, assignments.Assignment_ID, assignments.assignment_path FROM students, assignments WHERE students.Student_ID = assignments.Student_ID";
+                ResultSet rs = st.executeQuery(query) ;
+
+                textArea1.setText("Student_ID"+"   "+"Student_Name"+"    "+"Assignment_ID"+"    "+"Assignment_path"+"\n");
+                while ( rs.next() ) {
+
+                    textArea1.setText(textArea1.getText()+"         "+rs.getString("Student_ID")+"                   "+rs.getString("Student_Name")+"                  "+rs.getString("Assignment_ID")+"                  "+rs.getString("assignment_path")+"\n");
+
+                }
+            } catch (Exception t) {
+                t.printStackTrace();
+            }
+
+        }
+        if(e.getSource() == b1){
+            if(page ==3){
+                cl.previous(panel);
+                page = 2;
+            }
+            if(page ==4){
+                cl.previous(panel);
+                page = 3;
+            }
+        }
+        if(e.getSource() == b2){
+            if(page == 3){
+                cl.next(panel);
+                page = 4;
+            }
+            if(page == 2){
+                cl.next(panel);
+                page = 3;
+            }
+        }
+        if(e.getSource() == check){
+            try{
+                int x = Integer.parseInt(JOptionPane.showInputDialog("enter the student ID of the person the assignment belong to"));
+                file(filename.getText());
+                query = "insert ignore into assignments (Assignment_path,Student_ID) values('" +filename.getText()+"','"+x+"')";
+                st.executeUpdate(query) ;
+
+                //to be checked 
+            }catch (Exception c) {
+                //JOptionPane.showMessageDialog(null, "Select .txt file type only, and make sure has been enterd a unique Primary Key");
+            }
+        }
+        if(e.getSource() == insertStudent){
+            try{
+                query = "insert into students (Student_ID, Student_Name, Student_Surname, Student_DOB, Student_ContactNumber, Student_Email, Student_Attendance) values('" +addStudent1.getText()+"','"+addStudent2.getText()+"','"+addStudent3.getText()+"','"+addStudent4.getText()+"','"+addStudent5.getText()+"','"+addStudent6.getText()+"','"+addStudent7.getText()+"')";
+                st.executeUpdate(query);
+                query = "insert into courses (Tutor_ID,Student_ID, Course_name) values('"+cb1.getSelectedItem()+"','"+addStudent1.getText()+"','"+cb3.getSelectedItem()+"')";
+                st.executeUpdate(query);
+                JOptionPane.showMessageDialog(null, "Student succesfully inserted");
+                //file(filename.getText());                                            //to be checked 
+            }catch (Exception c) {
+                JOptionPane.showMessageDialog(null, "Primary Key was attempted to be duplicated or null");
+            }
+        }
+        if(e.getSource() == loginButton){
+            if((usernameTxt.getText()).equals("1111") && (passwordTxt.getText()).equals("1111")){
+                cl.next(panel);
+                b1.setPreferredSize(new Dimension(0, 20));
+                b2.setPreferredSize(new Dimension(0, 20));
+                page = 2;
+            }else{
+                JOptionPane.showMessageDialog(null, " Login details do not match, please renter");
+            }  
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void file(String f)throws IOException{
+        BufferedReader br3 = new BufferedReader(new FileReader(f));
+        //BufferedReader br4 = new BufferedReader(new FileReader("cloud1.txt"));
+        int docCount = 1;
+        int lineNotSimilar = 0;
+        try{
+            query = "SELECT Assignment_ID,Assignment_Path FROM assignments";
+            ResultSet rs = st.executeQuery(query) ;
+            int y = 0;
+            String x;
+
+            String lineA = "";
+            String lineB = "";
+
+            int lineSimilar = 0;
+            int lineSimilar2 = 0;
+            String line1 ="";
+            String line2 ="";
+
+            line1 ="";
+            line2 ="";
+            y = 0;
+            int doc=0;
+            while(rs.next()){
+                doc =0;
+               
+                br3 = new BufferedReader(new FileReader(f));
+                lineSimilar = 0;
+                while((line2 = br3.readLine()) != null ){ 
+
+                     BufferedReader br4 = new BufferedReader(new FileReader(rs.getString("assignment_path"))); 
+
+                    while((line1 = br4.readLine()) != null){  
+                        //System.out.println(line1+"11111111111111111111111111");
+                        //System.out.println(line2+"22222222222222222222222222");
+                        if(line2.equals(line1)){           //(x > br.readLine()) && (x > br1.readLine())
+                            y++;
+                            lineSimilar++;
+
+                            //System.out.println(""+line1);
+                            // System.out.println(""+line2);
+                            //doc++;
+                        }else{
+                            //System.out.println("line not similar");
+                            lineNotSimilar++;
+                        }
+
+                        doc++;
+                    }
+                    br4.close();
+                }
+                //System.out.println("linesimilar"+"lineSimilar  "+lineSimilar);
+
+                //System.out.println(doc);
+
+                if (lineSimilar > (5)){
+                    //JOptionPane.showMessageDialog(null,"The document is plagiarised");
+                    String message="";
+                    for(int i=0; i<1; i++){
+                        message += "The result against the document number"+" "+docCount+" "+", docoment is plagiarised";
+                        message += "\n";
+                        message += "The line similar are:"+"  "+lineSimilar;
+                        message += "\n";
+
+                    }
+                    JOptionPane.showMessageDialog(null, message);
+                    br3.close();
+                    
+                }else{
+                    String message="";
+                    for(int i=0; i<1; i++){
+                        message += "The result against the document number"+" "+docCount+" "+", dococument is good";
+                        message += "\n";
+                        message += "The line similar are:"+"  "+lineSimilar;
+                        message += "\n";
+
+                    }
+                    JOptionPane.showMessageDialog(null,message);
+                    br3.close();
+                    
+                }
+                docCount++;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+
+        }
+    }
+}
